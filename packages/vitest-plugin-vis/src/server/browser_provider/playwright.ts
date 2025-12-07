@@ -3,20 +3,18 @@ import type { ExtendedBrowserCommandContext } from '../vis_server_context.types.
 import type { BrowserApi } from './types.ts'
 
 export function playwright(context: ExtendedBrowserCommandContext): BrowserApi {
-	const { page, iframe } = context
+	const { page } = context
 
 	return {
 		async takeScreenshot(projectRoot, relativeFilePath, selector, options) {
-			const subject = iframe.locator(selector)
-			return subject.screenshot({
-				path: resolve(projectRoot, relativeFilePath),
-				...options,
-			})
+			return this.takePageScreenshot(projectRoot, relativeFilePath, options)
 		},
 		async takePageScreenshot(projectRoot, relativeFilePath, options) {
+			await page.waitForLoadState('networkidle');
 			return page.screenshot({
 				path: resolve(projectRoot, relativeFilePath),
 				...options,
+				animations: 'disabled',
 			})
 		},
 	}
